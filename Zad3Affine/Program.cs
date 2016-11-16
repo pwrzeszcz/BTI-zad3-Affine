@@ -44,6 +44,7 @@ namespace Zad3Affine
 
         private static int a;
         private static int b;
+        private static int e;
 
         static void Main(string[] args)
         {
@@ -51,8 +52,9 @@ namespace Zad3Affine
             int[] keys = GetKeysFromFile();
             a = keys[0];
             b = keys[1];
+            e = E(alphabet.Count);
 
-            if (nwd(a, alphabet.Count) == 1)
+            if (NWD(a, alphabet.Count) == 1)
             {
                 string encodedText = Encode(explicitText);
 
@@ -87,23 +89,11 @@ namespace Zad3Affine
 
             foreach (var item in text)
             {
-                int temp = 0;
+                var factor = Math.Pow(a, e) % alphabet.Count;
 
-                for (int x = 0; x < alphabet.Count; x++)
-                {
-                    if ((a * x) % alphabet.Count == 1)
-                        temp = x;
-                }
+                int explicitCharIndex = Mod(((int)factor * (alphabet[item] - b)), alphabet.Count);
 
-                var index = alphabet[item];
-                var newIndex = (temp * (index - b)) % alphabet.Count;
-
-                if (newIndex < 0)
-                {
-                    newIndex += alphabet.Count;
-                }
-                
-                decodedText.Append(alphabet.FirstOrDefault(x => x.Value == newIndex).Key);
+                decodedText.Append(alphabet.FirstOrDefault(x => x.Value == explicitCharIndex).Key);
             }
 
             return decodedText.ToString();
@@ -131,7 +121,12 @@ namespace Zad3Affine
             return keys.ToArray();
         }
 
-        private static int nwd(int a, int b)
+        private static int Mod(int n, int m)
+        {
+            return ((n % m) + m) % m;
+        }
+
+        private static int NWD(int a, int b)
         {
             int c;
             while (b != 0)
@@ -141,6 +136,20 @@ namespace Zad3Affine
                 b = c;
             }
             return a;
+        }
+
+        private static int E(int m)
+        {
+            var e = 0;
+            for (int i = 0; i <= m; i++)
+            {
+                if (NWD(i, m) == 1)
+                {
+                    e++;
+                }
+            }
+
+            return e - 1;
         }
     }
 }
